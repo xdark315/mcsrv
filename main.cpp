@@ -8,5 +8,3 @@ int main(int argc, char *argv[]) {
     read_args(argc, argv);
     return EXIT_SUCCESS;
 }
-
-//==============================================================================
