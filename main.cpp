@@ -1,5 +1,5 @@
-#include "args.h"
-#include "cmd.h"
+#include "args/args.h"
+#include "cmd/cmd.h"
 #include <iostream>
 
 using namespace std;

@@ -1,6 +1,6 @@
 CC = g++
 CPPFLAGS = -Wall -std=c++11 -O2
-OBJ = main.o cmd.o args.o
+OBJ = main.o cmd/cmd.o args/args.o
 PROGRAMM = mcsrv
 
 .PHONY: all clean
@@ -14,5 +14,5 @@ $(PROGRAMM): $(OBJ)
 	$(CC) $(OBJ) -o $(PROGRAMM)
 
 main.o: main.cpp
-srv_cmd.o: cmd.cpp cmd.h
-args.o: args.cpp args.h
+cmd.o: cmd/cmd.cpp cmd/cmd.h
+args.o: args/args.cpp args/args.h
