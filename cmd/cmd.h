@@ -2,11 +2,11 @@
 #define SRV_CMD_H
 
 #define ERROR -1
-#define OFF 0
-#define ON 1
+#define OFF false
+#define ON true
 
 // get srv status
-int status();
+bool status();
 
 // start srv
 void start();

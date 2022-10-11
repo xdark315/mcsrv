@@ -22,7 +22,7 @@ void read_args(int argc, char *argv[]) {
             restart();
         }
         else if (arg == "status"){
-            status();
+            print_status(status());
         }
         else {
             error();
@@ -30,6 +30,15 @@ void read_args(int argc, char *argv[]) {
     }
     else {
         error();
+    }
+}
+
+void print_status(bool status) {
+    if (status){
+        cout << "ON" << endl;
+    }
+    else {
+        cout << "OFF" << endl;
     }
 }
 

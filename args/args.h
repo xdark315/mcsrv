@@ -10,4 +10,7 @@ void help();
 // show error message
 void error();
 
+// print status
+void print_status(bool status);
+
 #endif

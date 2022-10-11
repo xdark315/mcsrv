@@ -1,3 +1,4 @@
 /mcsrv
 *.o
 *.bat
+.vscode/
