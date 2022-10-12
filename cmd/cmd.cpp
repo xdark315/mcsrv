@@ -9,6 +9,9 @@
 #include <cstdlib>
 
 using namespace std;
+// screen -dmS mc
+// screen -S mc -X stuff '<cmd>\n'
+// screen -XS mc quit
 
 string exec(const char* cmd);
 
@@ -37,11 +40,24 @@ bool status() {
 }
 
 void start() {
-    cout << "Start" << endl;
+    cout << "Starting server" << endl;
+    if (system("screen -dmS mc") != 0 ) {
+        cout << "Error starting screen" << endl;
+    }
+    // test avec htop pour debug
+    if (system("screen -S mc -X stuff 'htop\n' ") != 0 ) {
+        cout << "Error starting server" << endl;
+    }
 }
 
 void stop() {
-    cout << "Stop" << endl;
+    cout << "Stoping server" << endl;
+    if (system("screen -S mc -X stuff 'stop\n' ") !=0 ) {
+        cout << "Error stoping server" << endl;
+    }
+    if (system("screen -XS mc quit") !=0 ) {
+        cout << "Error stoping screen" << endl;
+    }
 }
 
 void restart() {
