@@ -22,7 +22,7 @@ void read_args(int argc, char *argv[]) {
             restart();
         }
         else if (arg == "status"){
-            print_status(status());
+            print_status(get_status());
         }
         else {
             error();

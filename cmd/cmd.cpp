@@ -13,9 +13,10 @@ using namespace std;
 // screen -S mc -X stuff '<cmd>\n'
 // screen -XS mc quit
 
+// running command and get the result in a string
 string exec(const char* cmd);
 
-bool status() {
+bool get_status() {
     // pgrep java
     // pwdx 1234
 
@@ -40,17 +41,25 @@ bool status() {
 }
 
 void start() {
+    if (get_status()){
+        cout << "Server is already started" << endl;
+        return;
+    }
     cout << "Starting server" << endl;
     if (system("screen -dmS mc") != 0 ) {
         cout << "Error starting screen" << endl;
     }
     // test avec htop pour debug
-    if (system("screen -S mc -X stuff 'htop\n' ") != 0 ) {
+    if (system("screen -S mc -X stuff 'bash /home/antoine/atm7/run.sh\n' ") != 0 ) {
         cout << "Error starting server" << endl;
     }
 }
 
 void stop() {
+    if (!get_status()){
+        cout << "Server is already stopped" << endl;
+        return;
+    }
     cout << "Stoping server" << endl;
     if (system("screen -S mc -X stuff 'stop\n' ") !=0 ) {
         cout << "Error stoping server" << endl;
@@ -65,7 +74,6 @@ void restart() {
     start();
 }
 
-// running command and get the result in a string
 string exec(const char* cmd) {
     array<char, 128> buffer;
     string result;

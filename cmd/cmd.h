@@ -6,7 +6,7 @@
 #define ON true
 
 // get srv status
-bool status();
+bool get_status();
 
 // start srv
 void start();
