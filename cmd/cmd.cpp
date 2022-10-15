@@ -1,7 +1,7 @@
 #include "cmd.h"
+#include "../json/json.hpp"
 #include <iostream>
 #include <fstream>
-#include <string>
 #include <cstdio>
 #include <memory>
 #include <stdexcept>
@@ -9,16 +9,23 @@
 #include <cstdlib>
 
 using namespace std;
-// screen -dmS mc
-// screen -S mc -X stuff '<cmd>\n'
-// screen -XS mc quit
+using json = nlohmann::json;
 
 // running command and get the result in a string
 string exec(const char* cmd);
 
-bool get_status() {
-    // pgrep java
-    // pwdx 1234
+// get string from all line in txt file
+string get_string_from_file(string path);
+
+Cmd::Cmd() {
+    string s = get_string_from_file("cfg/mcsrv.json");
+    json j = json::parse(s);
+    srv = j["srv"];
+    folder = j["folder"];
+    run = j["run"];
+}
+
+bool Cmd::get_status() {
 
     string s = exec("pgrep java");
 
@@ -28,7 +35,7 @@ bool get_status() {
             string pwdx = exec(("pwdx " + buffer).c_str());
             string s = pwdx.substr(pwdx.find_last_of(" ") + 1);
             string path = s.substr (0,s.length()-1);
-            if (path == "/home/antoine/atm7") {
+            if (path == folder) {
                 return ON;
             }
             buffer = "";
@@ -40,7 +47,7 @@ bool get_status() {
     return OFF;
 }
 
-void start() {
+void Cmd::start() {
     if (get_status()){
         cout << "Server is already started" << endl;
         return;
@@ -49,13 +56,14 @@ void start() {
     if (system("screen -dmS mc") != 0 ) {
         cout << "Error starting screen" << endl;
     }
-    // test avec htop pour debug
-    if (system("screen -S mc -X stuff 'bash /home/antoine/atm7/run.sh\n' ") != 0 ) {
+    string exec_file = folder + "/" + run;
+    string run_cmd = "screen -S mc -X stuff 'bash " + exec_file + "\n' ";
+    if (system(run_cmd.c_str()) != 0 ) {
         cout << "Error starting server" << endl;
     }
 }
 
-void stop() {
+void Cmd::stop() {
     if (!get_status()){
         cout << "Server is already stopped" << endl;
         return;
@@ -69,7 +77,7 @@ void stop() {
     }
 }
 
-void restart() {
+void Cmd::restart() {
     stop();
     start();
 }
@@ -85,4 +93,14 @@ string exec(const char* cmd) {
         result += buffer.data();
     }
     return result;
+}
+
+string get_string_from_file(string path) {
+    ifstream file(path);
+    string str;
+    string buffer;
+    while (getline(file, buffer)) {
+        str += buffer;
+    }
+    return str;
 }

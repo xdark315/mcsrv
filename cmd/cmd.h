@@ -1,3 +1,6 @@
+#include <string>
+
+
 #ifndef SRV_CMD_H
 #define SRV_CMD_H
 
@@ -5,16 +8,31 @@
 #define OFF false
 #define ON true
 
-// get srv status
-bool get_status();
+using namespace std;
 
-// start srv
-void start();
+class Cmd {
+    private:
 
-// stop srv
-void stop();
+        string srv;
+        string folder;
+        string run;
 
-// restart srv
-void restart();
+    public:
+        // constructor
+        Cmd();
+
+        // get srv status
+        bool get_status();
+
+        // start srv
+        void start();
+
+        // stop srv
+        void stop();
+
+        // restart srv
+        void restart();
+    };
+
 
 #endif

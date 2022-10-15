@@ -6,6 +6,7 @@
 using namespace std;
 
 void read_args(int argc, char *argv[]) {
+    Cmd cmd;
     if (argc == 2){
 
         string arg = argv[1];
@@ -13,16 +14,16 @@ void read_args(int argc, char *argv[]) {
             help();
         }
         else if (arg == "start"){
-            start();
+            cmd.start();
         }
         else if (arg == "stop"){
-            stop();
+            cmd.stop();
         }
         else if (arg == "restart"){
-            restart();
+            cmd.restart();
         }
         else if (arg == "status"){
-            print_status(get_status());
+            print_status(cmd.get_status());
         }
         else {
             error();
