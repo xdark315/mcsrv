@@ -56,8 +56,12 @@ void Cmd::start() {
     if (system("screen -dmS mc") != 0 ) {
         cout << "Error starting screen" << endl;
     }
-    string exec_file = folder + "/" + run;
-    string run_cmd = "screen -S mc -X stuff 'bash " + exec_file + "\n' ";
+    string cd_cmd = "screen -S mc -X stuff 'cd " + folder +"\n'" ;
+    cout << cd_cmd << endl;
+    string run_cmd = "screen -S mc -X stuff './" + run + "\n' ";
+    if (system(cd_cmd.c_str()) != 0) {
+        cout << "Error cd server foler" << endl;
+    }
     if (system(run_cmd.c_str()) != 0 ) {
         cout << "Error starting server" << endl;
     }
@@ -71,6 +75,10 @@ void Cmd::stop() {
     cout << "Stoping server" << endl;
     if (system("screen -S mc -X stuff 'stop\n' ") !=0 ) {
         cout << "Error stoping server" << endl;
+    }
+    while (get_status()) {
+        cout << "Waiting for server to stop" << endl;
+        sleep(1);
     }
     if (system("screen -XS mc quit") !=0 ) {
         cout << "Error stoping screen" << endl;
