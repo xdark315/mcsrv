@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <array>
 #include <cstdlib>
+#include <unistd.h>
 
 using namespace std;
 using json = nlohmann::json;
@@ -57,7 +58,6 @@ void Cmd::start() {
         cout << "Error starting screen" << endl;
     }
     string cd_cmd = "screen -S mc -X stuff 'cd " + folder +"\n'" ;
-    cout << cd_cmd << endl;
     string run_cmd = "screen -S mc -X stuff './" + run + "\n' ";
     if (system(cd_cmd.c_str()) != 0) {
         cout << "Error cd server foler" << endl;
@@ -78,11 +78,12 @@ void Cmd::stop() {
     }
     while (get_status()) {
         cout << "Waiting for server to stop" << endl;
-        sleep(1);
+        sleep(5);
     }
     if (system("screen -XS mc quit") !=0 ) {
         cout << "Error stoping screen" << endl;
     }
+    cout << "Server stopped" << endl;
 }
 
 void Cmd::restart() {
