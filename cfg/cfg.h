@@ -1,5 +1,5 @@
-#ifndef CFG_GEN_H
-#define CFG_GEN_H
+#ifndef CFG_H
+#define CFG_H
 
 #include "../json/json.hpp"
 

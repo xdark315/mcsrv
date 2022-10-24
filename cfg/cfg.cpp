@@ -1,4 +1,4 @@
-#include "cfg_gen.h"
+#include "cfg.h"
 #include <fstream>
 #include <iostream>
 #include <string>

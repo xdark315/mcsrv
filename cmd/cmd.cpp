@@ -1,5 +1,5 @@
 #include "cmd.h"
-#include "../cfg_gen/cfg_gen.h"
+#include "../cfg/cfg.h"
 #include <iostream>
 #include <fstream>
 #include <cstdio>
