@@ -21,7 +21,7 @@ Run and stop minecraft serveur for linux
 
 **Config**
 
-config file in /home/user
+config file in `/home/user/.mcsrv`
 
 config file example:
 ``` json
