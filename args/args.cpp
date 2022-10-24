@@ -36,10 +36,10 @@ void read_args(int argc, char *argv[]) {
 
 void print_status(bool status) {
     if (status){
-        cout << "ON" << endl;
+        cout << "Server is ON" << endl;
     }
     else {
-        cout << "OFF" << endl;
+        cout << "Server is OFF" << endl;
     }
 }
 

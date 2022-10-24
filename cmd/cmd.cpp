@@ -1,5 +1,5 @@
 #include "cmd.h"
-#include "../json/json.hpp"
+#include "../cfg_gen/cfg_gen.h"
 #include <iostream>
 #include <fstream>
 #include <cstdio>
@@ -15,12 +15,8 @@ using json = nlohmann::json;
 // running command and get the result in a string
 string exec(const char* cmd);
 
-// get string from all line in txt file
-string get_string_from_file(string path);
-
 Cmd::Cmd() {
-    string s = get_string_from_file("cfg/mcsrv.json");
-    json j = json::parse(s);
+    json j = get_cfg();
     srv = j["srv"];
     folder = j["folder"];
     run = j["run"];
@@ -65,6 +61,16 @@ void Cmd::start() {
     if (system(run_cmd.c_str()) != 0 ) {
         cout << "Error starting server" << endl;
     }
+    sleep(2);
+    if (get_status()) {
+        cout << "Server started" << endl;
+    }
+    else {
+        cout << "Error starting server" << endl;
+            if (system("screen -XS mc quit") !=0 ) {
+            cout << "Error stoping screen" << endl;
+        }
+    }
 }
 
 void Cmd::stop() {
@@ -104,12 +110,3 @@ string exec(const char* cmd) {
     return result;
 }
 
-string get_string_from_file(string path) {
-    ifstream file(path);
-    string str;
-    string buffer;
-    while (getline(file, buffer)) {
-        str += buffer;
-    }
-    return str;
-}

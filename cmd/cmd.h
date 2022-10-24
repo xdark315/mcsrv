@@ -1,10 +1,8 @@
-#include <string>
-
-
 #ifndef SRV_CMD_H
 #define SRV_CMD_H
 
-#define ERROR -1
+#include <string>
+
 #define OFF false
 #define ON true
 
