@@ -1,0 +1,83 @@
+# Compiled binaries
+mcsrv
+*.o
+*.a
+*.so
+*.dylib
+
+# Build artifacts
+*.out
+*.exe
+a.out
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Core dumps
+core
+core.*
+vgcore.*
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# Log files
+*.log
+
+# Runtime files (FIFOs, PID files)
+/tmp/mcsrv*
+*.pid
+*.fifo
+
+# Configuration overrides
+/mcsrv.conf.local
+/mcsrv.conf.dev
+
+# Test outputs
+test_output/
+*.test
+
+# Archive files
+*.tar.gz
+*.zip
+*.tar.xz
+
+# Backup files
+*.bak
+*.backup
+
+# Profiling data
+gmon.out
+*.gcov
+*.gcda
+*.gcno
+
+# Static analysis
+*.sarif
+cppcheck-report.xml
+
+# Package files
+*.deb
+*.rpm
+*.pkg
+
+# Documentation builds
+docs/_build/
+*.pdf
+
+# Test files
+test_srv/
+test*
