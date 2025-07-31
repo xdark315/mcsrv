@@ -61,7 +61,7 @@ Configuration files are loaded in priority order:
 folder /path/to/working/directory
 
 # Command to run when server starts
-run_command "your_command_here"
+run_command your_command_here
 
 # Process ID file location
 pid_file /tmp/mcsrv.pid
