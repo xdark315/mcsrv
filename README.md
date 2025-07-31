@@ -74,8 +74,8 @@ fifo_out /tmp/mcsrv_out
 ### Default Configuration
 
 ```bash
-folder /tmp
-run_command "bash"
+folder /path/to/directory/
+run_command ./run.sh
 pid_file /tmp/mcsrv.pid
 fifo_in /tmp/mcsrv_in
 fifo_out /tmp/mcsrv_out
@@ -181,8 +181,7 @@ mcsrv/
 ├── main.c           # Main source code
 ├── mcsrv.conf      # Default configuration
 ├── makefile        # Build system
-├── README.md       # This file
-└── test.sh         # Test script
+└── README.md       # This file
 ```
 
 ## License
