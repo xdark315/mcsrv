@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -std=c23 -O2 -Wall -Wextra -Wpedantic
+CFLAGS = -std=c2x -O2 -Wall -Wextra -Wpedantic
 LDFLAGS = 
 objects = main.o
 executable = mcsrv

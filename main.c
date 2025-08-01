@@ -3,12 +3,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <sys/select.h>
 #include <signal.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <termios.h>
+#include <time.h>
 
 #define VERSION "1.0.0"
 #define CONFIG_FILE "mcsrv.conf"
@@ -94,7 +97,7 @@ void print_default(void) {
 
 void print_version(void) {
     fprintf(stderr, "mcsrv version %s\n", VERSION);
-    fprintf(stderr, "Built with C17 standard.\n");
+    fprintf(stderr, "Built with C2x standard.\n");
 }
 
 void print_help(void) {
@@ -178,22 +181,36 @@ void start_server(void) {
                 char buffer[1024];
                 ssize_t bytes;
                 while ((bytes = read(fifo_fd, buffer, sizeof(buffer))) > 0) {
-                    write(pipe_fd[1], buffer, bytes);
+                    ssize_t written = write(pipe_fd[1], buffer, bytes);
+                    if (written == -1) {
+                        perror("write to pipe");
+                        break;
+                    }
                 }
                 close(fifo_fd);
                 // FIFO closed, wait a bit and reopen
-                usleep(100000); // 100ms = 100000 microseconds
+                struct timespec sleep_time = {0, 100000000}; // 100ms = 100000000 nanoseconds
+                nanosleep(&sleep_time, NULL);
             }
         } else {
             // Main server process
             close(pipe_fd[1]); // Close write end
             
             // Redirect stdin from pipe, stdout/stderr to FIFO_OUT
-            dup2(pipe_fd[0], STDIN_FILENO);
+            if (dup2(pipe_fd[0], STDIN_FILENO) == -1) {
+                perror("dup2 stdin");
+                exit(EXIT_FAILURE);
+            }
             close(pipe_fd[0]);
             
-            freopen(config.fifo_out, "w", stdout);
-            freopen(config.fifo_out, "w", stderr);
+            if (freopen(config.fifo_out, "w", stdout) == NULL) {
+                perror("freopen stdout");
+                exit(EXIT_FAILURE);
+            }
+            if (freopen(config.fifo_out, "w", stderr) == NULL) {
+                perror("freopen stderr");
+                exit(EXIT_FAILURE);
+            }
 
             // change directory to where the script is located
             if (chdir(config.folder) == -1) {
@@ -282,13 +299,20 @@ void attach_server(void) {
                     strncmp(input_line, "quit", 4) == 0 ||
                     strncmp(input_line, "q\n", 2) == 0 ||
                     strncmp(input_line, "exit", 4) == 0) {
-                    write(fifo_in, input_line, strlen(input_line));
+                    ssize_t written = write(fifo_in, input_line, strlen(input_line));
+                    if (written == -1) {
+                        perror("write stop command");
+                    }
                     detach_requested = 1;
                     break;
                 }
                 
                 // Send input to server
-                write(fifo_in, input_line, strlen(input_line));
+                ssize_t written = write(fifo_in, input_line, strlen(input_line));
+                if (written == -1) {
+                    perror("write to server");
+                    break;
+                }
             } else {
                 // EOF detected (Ctrl+D) - just detach, don't send EOF to server
                 if (feof(stdin)) {
@@ -335,7 +359,10 @@ void stop_server(void) {
     int fifo_in = open(config.fifo_in, O_WRONLY | O_NONBLOCK);
     if (fifo_in != -1) {
         const char *stop_cmd = "stop\n";
-        write(fifo_in, stop_cmd, strlen(stop_cmd));
+        ssize_t written = write(fifo_in, stop_cmd, strlen(stop_cmd));
+        if (written == -1) {
+            perror("write stop command");
+        }
         close(fifo_in);
         
         // Wait a bit for graceful shutdown
@@ -347,7 +374,9 @@ void stop_server(void) {
     // Check if server stopped gracefully
     if (is_process_running(server_pid)) {
         fprintf(stderr, "Server didn't stop gracefully, forcing shutdown...\n");
-        kill(server_pid, SIGKILL);
+        if (kill(server_pid, SIGKILL) == -1) {
+            perror("kill server");
+        }
         sleep(1);
     }
 
@@ -391,16 +420,25 @@ int is_process_running(pid_t pid) {
 }
 
 void cleanup_files(void) {
-    unlink(config.pid_file);
-    unlink(config.fifo_in);
-    unlink(config.fifo_out);
+    if (unlink(config.pid_file) == -1 && errno != ENOENT) {
+        perror("unlink pid_file");
+    }
+    if (unlink(config.fifo_in) == -1 && errno != ENOENT) {
+        perror("unlink fifo_in");
+    }
+    if (unlink(config.fifo_out) == -1 && errno != ENOENT) {
+        perror("unlink fifo_out");
+    }
 }
 
 void setup_terminal(void) {
     struct termios new_termios;
     
     // Get current terminal attributes
-    tcgetattr(STDIN_FILENO, &original_termios);
+    if (tcgetattr(STDIN_FILENO, &original_termios) == -1) {
+        perror("tcgetattr");
+        return;
+    }
     
     // Copy current attributes
     new_termios = original_termios;
@@ -413,12 +451,16 @@ void setup_terminal(void) {
     new_termios.c_cc[VTIME] = 0;
     
     // Apply new settings
-    tcsetattr(STDIN_FILENO, TCSANOW, &new_termios);
+    if (tcsetattr(STDIN_FILENO, TCSANOW, &new_termios) == -1) {
+        perror("tcsetattr");
+    }
 }
 
 void restore_terminal(void) {
     // Restore original terminal attributes
-    tcsetattr(STDIN_FILENO, TCSANOW, &original_termios);
+    if (tcsetattr(STDIN_FILENO, TCSANOW, &original_termios) == -1) {
+        perror("tcsetattr restore");
+    }
 }
 
 void sigint_handler(int sig) {
@@ -427,7 +469,10 @@ void sigint_handler(int sig) {
     // Send stop command to server if we have a pipe open
     if (server_fifo_in != -1) {
         const char *stop_cmd = "stop\n";
-        write(server_fifo_in, stop_cmd, strlen(stop_cmd));
+        ssize_t written = write(server_fifo_in, stop_cmd, strlen(stop_cmd));
+        if (written == -1) {
+            // Can't use perror in signal handler, just ignore
+        }
     }
     
     // Set flag to exit main loop
