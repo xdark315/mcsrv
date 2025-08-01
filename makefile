@@ -15,17 +15,35 @@ install: $(executable)
 	install -d $(DESTDIR)$(PREFIX)/bin
 	install -m 755 $(executable) $(DESTDIR)$(PREFIX)/bin/
 	@echo "Installing config file..."
-	@if [ ! -d "$$HOME/.mcsrv" ]; then mkdir -p "$$HOME/.mcsrv"; fi
-	@if [ ! -f "$$HOME/.mcsrv/mcsrv.conf" ]; then \
-		cp mcsrv.conf "$$HOME/.mcsrv/mcsrv.conf"; \
-		echo "Config file installed to $$HOME/.mcsrv/mcsrv.conf"; \
+	@if [ -n "$$SUDO_USER" ]; then \
+		USER_HOME=$$(eval echo ~$$SUDO_USER); \
 	else \
-		echo "Config file already exists at $$HOME/.mcsrv/mcsrv.conf"; \
+		USER_HOME=$$HOME; \
+	fi; \
+	if [ ! -d "$$USER_HOME/.mcsrv" ]; then \
+		mkdir -p "$$USER_HOME/.mcsrv"; \
+		if [ -n "$$SUDO_USER" ]; then \
+			chown $$SUDO_USER:$$(id -gn $$SUDO_USER) "$$USER_HOME/.mcsrv"; \
+		fi; \
+	fi; \
+	if [ ! -f "$$USER_HOME/.mcsrv/mcsrv.conf" ]; then \
+		cp mcsrv.conf "$$USER_HOME/.mcsrv/mcsrv.conf"; \
+		if [ -n "$$SUDO_USER" ]; then \
+			chown $$SUDO_USER:$$(id -gn $$SUDO_USER) "$$USER_HOME/.mcsrv/mcsrv.conf"; \
+		fi; \
+		echo "Config file installed to $$USER_HOME/.mcsrv/mcsrv.conf"; \
+	else \
+		echo "Config file already exists at $$USER_HOME/.mcsrv/mcsrv.conf"; \
 	fi
 
 uninstall:
 	$(RM) $(DESTDIR)$(PREFIX)/bin/$(executable)
-	@echo "Note: Config file $$HOME/.mcsrv/mcsrv.conf preserved"
+	@if [ -n "$$SUDO_USER" ]; then \
+		USER_HOME=$$(eval echo ~$$SUDO_USER); \
+	else \
+		USER_HOME=$$HOME; \
+	fi; \
+	echo "Note: Config file $$USER_HOME/.mcsrv/mcsrv.conf preserved"
 
 $(executable): $(objects)
 	$(CC) $(LDFLAGS) $(objects) -o $(executable)
